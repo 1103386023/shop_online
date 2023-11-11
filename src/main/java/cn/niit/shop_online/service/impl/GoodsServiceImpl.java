@@ -19,15 +19,15 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-
 /**
  * <p>
- *  服务实现类
+ *
  * </p>
  *
- * @author 200613
+ * @author 1103386023
  * @since 2023-11-07
  */
+
 @Service
 @AllArgsConstructor
 public class GoodsServiceImpl extends ServiceImpl<GoodsMapper, Goods> implements GoodsService {

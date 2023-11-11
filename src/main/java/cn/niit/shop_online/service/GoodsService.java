@@ -12,12 +12,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * <p>
- *  服务类
+ *
  * </p>
  *
- * @author sunyu
- * @since 2023-11-08
+ * @author 1103386023
+ * @since 2023-11-07
  */
+
 public interface GoodsService extends IService<Goods> {
     /**
      * 首页热门推荐 - 根据 tab Id 获取该推荐下的商品列表
