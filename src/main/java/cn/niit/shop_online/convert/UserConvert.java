@@ -1,8 +1,9 @@
 package cn.niit.shop_online.convert;
 
+
 import cn.niit.shop_online.entity.User;
-import cn.niit.shop_online.query.LoginResultVO;
-import cn.niit.shop_online.query.UserVO;
+import cn.niit.shop_online.vo.LoginResultVO;
+import cn.niit.shop_online.vo.UserVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
@@ -11,7 +12,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 /**
- * @author ycshang
+ * @author 1103386023
  */
 @Mapper
 public interface UserConvert {
