@@ -4,7 +4,7 @@ package cn.niit.shop_online.interceptor;
 import cn.niit.shop_online.common.exception.ServerException;
 import cn.niit.shop_online.common.utils.JWTUtils;
 import cn.niit.shop_online.constant.APIConstant;
-import cn.niit.shop_online.query.UserTokenVO;
+import cn.niit.shop_online.vo.UserTokenVO;
 import cn.niit.shop_online.service.RedisService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
