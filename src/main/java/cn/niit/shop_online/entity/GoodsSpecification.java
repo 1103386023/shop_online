@@ -14,17 +14,19 @@ import lombok.Setter;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author 1103386023
  * @since 2023-11-07
  */
+
 @Getter
 @Setter
 @TableName("t_goods_specification")
 @ApiModel(value = "GoodsSpecification对象", description = "")
 public class GoodsSpecification {
+
 
     @ApiModelProperty("主键id")
     @TableId(value = "id", type = IdType.AUTO)
