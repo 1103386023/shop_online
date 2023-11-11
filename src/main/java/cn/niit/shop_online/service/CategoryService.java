@@ -8,12 +8,13 @@ import java.util.List;
 
 /**
  * <p>
- *  服务类
+ *
  * </p>
  *
- * @author 200613
+ * @author 1103386023
  * @since 2023-11-07
  */
+
 public interface CategoryService extends IService<Category> {
     List<Category> getIndexCategoryList();
     List<CategoryVO> getCategoryList();
