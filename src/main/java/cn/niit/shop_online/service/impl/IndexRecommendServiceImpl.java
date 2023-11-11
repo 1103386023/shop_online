@@ -13,12 +13,13 @@ import java.util.List;
 
 /**
  * <p>
- *  服务实现类
+ *
  * </p>
  *
- * @author 200613
+ * @author 1103386023
  * @since 2023-11-07
  */
+
 @Service
 public class IndexRecommendServiceImpl extends ServiceImpl<IndexRecommendMapper, IndexRecommend> implements IndexRecommendService {
 

@@ -1,4 +1,7 @@
-package cn.niit.shop_online.query;
+package cn.niit.shop_online.vo;
+
+
+
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -18,3 +21,4 @@ public class LoginResultVO {
     @Schema(description = "账号")
     private String account;
 }
+
