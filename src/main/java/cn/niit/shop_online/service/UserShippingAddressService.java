@@ -15,10 +15,14 @@ import java.util.List;
  * @since 2023-11-07
  */
 public interface UserShippingAddressService extends IService<UserShippingAddress> {
-    Integer saveshippingAddress(AddressVO addressVO) ;
+    Integer saveshippingAddress(AddressVO addressVO);
     Integer editshippingAddress(AddressVO addressVO) ;
-    AddressVO shippingAddressDetail(Integer id);
-    List<AddressVO>shippingAddressList(Integer userId);
-    void deleteshippingAddress(Integer id);
+    List<AddressVO> getList(Integer userId);
+    AddressVO getAddressInfo(Integer id);
+
+    /**
+     * 删除收货地址
+     */
+    void removeShippingAddress(Integer id);
 
 }

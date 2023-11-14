@@ -67,33 +67,30 @@ public class UserShippingAddressServiceImpl extends ServiceImpl<UserShippingAddr
     }
 
     @Override
-    public AddressVO shippingAddressDetail(Integer id) {
-        UserShippingAddress address = baseMapper.selectById(id);
-        if(address==null||address.getDeleteFlag()==1){
-            throw new ServerException("该地址不存在");
-        }
-        return AddressConvert.INSTANCE.convertToAddressVO(address);
-
+    public List<AddressVO> getList(Integer userId) {
+        LambdaQueryWrapper<UserShippingAddress> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserShippingAddress::getUserId, userId);
+//        根据是否为默认地址和创建时间倒序排列
+        wrapper.orderByDesc(UserShippingAddress::getIsDefault);
+        wrapper.orderByDesc(UserShippingAddress::getCreateTime);
+        List<UserShippingAddress> list = baseMapper.selectList(wrapper);
+        List<AddressVO> results = AddressConvert.INSTANCE.convertToAddressVOList(list);
+        return results;
     }
 
     @Override
-    public List<AddressVO> shippingAddressList(Integer userId) {
-        List<UserShippingAddress> list = baseMapper.selectList(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getUserId, userId).eq(UserShippingAddress::getDeleteFlag,0));
-        return AddressConvert.INSTANCE.convertToAddressVOList(list);
-
+    public AddressVO getAddressInfo(Integer id) {
+        UserShippingAddress userShippingAddress = baseMapper.selectById(id);
+        if (userShippingAddress == null) {
+            throw new ServerException("地址不存在");
+        }
+        AddressVO addressVO = AddressConvert.INSTANCE.convertToAddressVO(userShippingAddress);
+        return addressVO;
     }
 
     @Override
-    public void deleteshippingAddress(Integer id) {
-        UserShippingAddress address = baseMapper.selectById(id);
-        if(address==null||address.getDeleteFlag()==1){
-            throw new ServerException("该地址不存在");
-        }
-        address.setDeleteFlag(1);
-        int i = baseMapper.updateById(address);
-        if(i!=1){
-            throw new ServerException("删除失败");
-        }
+    public void removeShippingAddress(Integer id) {
+        removeById(id);
     }
 
 
