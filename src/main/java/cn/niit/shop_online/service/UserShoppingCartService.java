@@ -21,4 +21,5 @@ CartGoodsVO addShopCart(CartQuery query);
 List<CartGoodsVO> shopCartList(Integer userId);
  CartGoodsVO editCart(EditCartQuery query);
  void removeCartGoods(Integer userId,List<Integer>ids);
+ void editCartSelected(Boolean selected,Integer userId);
 }
