@@ -64,7 +64,7 @@ public class UserShippingAddress {
 
     @ApiModelProperty("逻辑删除(0-未删除，1-已删除)")
     @TableField("delete_flag")
-    @TableLogic
+    @TableLogic(value = "0",delval = "1")
     private Integer deleteFlag;
 
     @ApiModelProperty("创建时间")
