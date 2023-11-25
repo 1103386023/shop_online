@@ -1,21 +1,15 @@
 package cn.niit.shop_online.service.impl;
 
 import cn.niit.shop_online.common.exception.ServerException;
+import cn.niit.shop_online.convert.UserAddressConvert;
 import cn.niit.shop_online.convert.UserOrderDetailConvert;
-import cn.niit.shop_online.entity.Goods;
-import cn.niit.shop_online.entity.UserOrder;
-import cn.niit.shop_online.entity.UserOrderGoods;
-import cn.niit.shop_online.entity.UserShippingAddress;
+import cn.niit.shop_online.entity.*;
 import cn.niit.shop_online.enums.OrderStatusEnum;
-import cn.niit.shop_online.mapper.GoodsMapper;
-import cn.niit.shop_online.mapper.UserOrderGoodsMapper;
-import cn.niit.shop_online.mapper.UserOrderMapper;
-import cn.niit.shop_online.mapper.UserShippingAddressMapper;
+import cn.niit.shop_online.mapper.*;
 import cn.niit.shop_online.query.OrderGoodsQuery;
 import cn.niit.shop_online.service.UserOrderGoodsService;
 import cn.niit.shop_online.service.UserOrderService;
-import cn.niit.shop_online.vo.OrderDetailVO;
-import cn.niit.shop_online.vo.UserOrderVO;
+import cn.niit.shop_online.vo.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -49,8 +44,12 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
 
     private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> cancelTask;
+    @Autowired
     private UserShippingAddressMapper userShippingAddressMapper;
+    @Autowired
     private UserOrderGoodsMapper userOrderGoodsMapper;
+    @Autowired
+    private UserShoppingCartMapper userShoppingCartMapper;
 
     @Async
     public void scheduleOrderCancel(UserOrder userOrder) {
@@ -172,6 +171,88 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
         return orderDetailVO;
     }
 
+    @Override
+    public SubmitOrderVO getPreOrderDetail(Integer userId) {
+
+        SubmitOrderVO submitOrderVO = new SubmitOrderVO();
+//       1、查询用户购物车中选中的商品列表，如果为空直接返回 null
+        List<UserShoppingCart> cartList = userShoppingCartMapper.selectList(new LambdaQueryWrapper<UserShoppingCart>().eq(UserShoppingCart::getUserId, userId).eq(UserShoppingCart::getSelected, true));
+        if (cartList.size() == 0) {
+            return null;
+        }
+//        2、查询用户收货地址列表
+        List<UserAddressVO> addressList = getAddressListByUserId(userId, null);
+
+//        3、声明订单应付款、总运费金额
+        BigDecimal totalPrice = new BigDecimal(0);
+        Integer totalCount = 0;
+        BigDecimal totalPayPrice = new BigDecimal(0);
+        BigDecimal totalFreight = new BigDecimal(0);
+
+//        4、查询商品信息并计算每个选购商品的总费用
+        List<UserOrderGoodsVO> goodList = new ArrayList<>();
+        for (UserShoppingCart shoppingCart : cartList) {
+            Goods goods = goodsMapper.selectById(shoppingCart.getGoodsId());
+            UserOrderGoodsVO userOrderGoodsVO = new UserOrderGoodsVO();
+            userOrderGoodsVO.setId(goods.getId());
+            userOrderGoodsVO.setName(goods.getName());
+            userOrderGoodsVO.setPicture(goods.getCover());
+            userOrderGoodsVO.setCount(shoppingCart.getCount());
+            userOrderGoodsVO.setAttrsText(shoppingCart.getAttrsText());
+            userOrderGoodsVO.setPrice(goods.getOldPrice());
+            userOrderGoodsVO.setPayPrice(goods.getPrice());
+            userOrderGoodsVO.setTotalPrice(goods.getFreight() + goods.getPrice() * shoppingCart.getCount());
+            userOrderGoodsVO.setTotalPayPrice(userOrderGoodsVO.getTotalPrice());
+
+            BigDecimal freight = new BigDecimal(goods.getFreight().toString());
+            BigDecimal goodsPrice = new BigDecimal(goods.getPrice().toString());
+            BigDecimal count = new BigDecimal(shoppingCart.getCount().toString());
+
+
+            BigDecimal price = goodsPrice.multiply(count).add(freight);
+
+
+            totalPrice = totalPrice.add(price);
+            totalCount += userOrderGoodsVO.getCount();
+            totalPayPrice = totalPayPrice.add(new BigDecimal(userOrderGoodsVO.getTotalPayPrice().toString()));
+            totalFreight = totalFreight.add(freight);
+            goodList.add(userOrderGoodsVO);
+        }
+//       5、费用综述信息
+        OrderInfoVO orderInfoVO = new OrderInfoVO();
+        orderInfoVO.setGoodsCount(totalCount);
+        orderInfoVO.setTotalPayPrice(totalPayPrice.doubleValue());
+        orderInfoVO.setTotalPrice(totalPrice.doubleValue());
+        orderInfoVO.setPostFee(totalFreight.doubleValue());
+
+
+        submitOrderVO.setUserAddresses(addressList);
+        submitOrderVO.setGoods(goodList);
+        submitOrderVO.setSummary(orderInfoVO);
+        return submitOrderVO;
+    }
+    public List<UserAddressVO> getAddressListByUserId(Integer userId, Integer addressId) {
+//      1、根据用户 id 查询该用户的收货地址列表
+        List<UserShippingAddress> list = userShippingAddressMapper.selectList(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getUserId, userId));
+        UserShippingAddress userShippingAddress = null;
+        UserAddressVO userAddressVO;
+        if (list.size() == 0) {
+            return null;
+        }
+//      2、如果用户已经有选中的地址，将选中的地址是否选中属性设置为 true
+        if (addressId != null) {
+            userShippingAddress = list.stream().filter(item -> item.getId().equals(addressId)).collect(Collectors.toList()).get(0);
+            list.remove(userShippingAddress);
+        }
+        List<UserAddressVO> addressList = UserAddressConvert.INSTANCE.convertToUserAddressVOList(list);
+        if (userShippingAddress != null) {
+            userAddressVO = UserAddressConvert.INSTANCE.convertToUserAddressVO(userShippingAddress);
+            userAddressVO.setSelected(true);
+            addressList.add(userAddressVO);
+        }
+
+        return addressList;
+    }
 
 
 }
