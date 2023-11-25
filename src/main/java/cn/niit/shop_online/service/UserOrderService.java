@@ -70,5 +70,18 @@ Integer addGoodsOrder(UserOrderVO orderVO);
      * @param ids
      */
     void deleteOrder(List<Integer> ids, Integer userId);
+    /**
+     * 订单支付
+     *
+     * @param id
+     */
+    void payOrder(Integer id);
+    /**
+     * 模拟发货
+     *
+     * @param id
+     * @return
+     */
+    void consignOrder(Integer id);
 }
 
