@@ -10,6 +10,8 @@ import cn.niit.shop_online.vo.SubmitOrderVO;
 import cn.niit.shop_online.vo.UserOrderVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -62,5 +64,11 @@ Integer addGoodsOrder(UserOrderVO orderVO);
      * @return
      */
     OrderDetailVO cancelOrder(CancelGoodsQuery query);
+    /**
+     * 删除订单
+     *
+     * @param ids
+     */
+    void deleteOrder(List<Integer> ids, Integer userId);
 }
 
