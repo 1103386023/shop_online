@@ -2,6 +2,7 @@ package cn.niit.shop_online.controller;
 
 import cn.niit.shop_online.common.exception.ServerException;
 import cn.niit.shop_online.common.result.Result;
+import cn.niit.shop_online.query.OrderPreQuery;
 import cn.niit.shop_online.service.UserOrderService;
 import cn.niit.shop_online.vo.OrderDetailVO;
 import cn.niit.shop_online.vo.SubmitOrderVO;
@@ -56,6 +57,14 @@ public class UserOrderController {
         SubmitOrderVO preOrderDetail = userOrderService.getPreOrderDetail(userId);
         return Result.ok(preOrderDetail);
     }
+    @Operation(summary = "填写订单-获取立即购买订单")
+    @PostMapping("prew/now")
+    public Result<SubmitOrderVO> getPreNowOrderDetail(@RequestBody @Validated OrderPreQuery query, HttpServletRequest request) {
+        query.setUserId(getUserId(request));
+        SubmitOrderVO preNowOrderDetail = userOrderService.getPreNowOrderDetail(query);
+        return Result.ok(preNowOrderDetail);
+    }
+
 
 
 

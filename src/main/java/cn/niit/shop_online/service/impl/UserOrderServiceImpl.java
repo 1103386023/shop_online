@@ -7,6 +7,7 @@ import cn.niit.shop_online.entity.*;
 import cn.niit.shop_online.enums.OrderStatusEnum;
 import cn.niit.shop_online.mapper.*;
 import cn.niit.shop_online.query.OrderGoodsQuery;
+import cn.niit.shop_online.query.OrderPreQuery;
 import cn.niit.shop_online.service.UserOrderGoodsService;
 import cn.niit.shop_online.service.UserOrderService;
 import cn.niit.shop_online.vo.*;
@@ -231,6 +232,53 @@ public class UserOrderServiceImpl extends ServiceImpl<UserOrderMapper, UserOrder
         submitOrderVO.setSummary(orderInfoVO);
         return submitOrderVO;
     }
+
+    @Override
+    public SubmitOrderVO getPreNowOrderDetail(OrderPreQuery query) {
+        SubmitOrderVO submitOrderVO = new SubmitOrderVO();
+//        1、查询用户收货地址
+        List<UserAddressVO> addressList = getAddressListByUserId(query.getUserId(), query.getAddressId());
+
+        List<UserOrderGoodsVO> goodList = new ArrayList<>();
+
+//        2、商品信息
+        Goods goods = goodsMapper.selectById(query.getId());
+        if (goods == null) {
+            throw new ServerException("商品信息不存在");
+        }
+        if (query.getCount() > goods.getInventory()) {
+            throw new ServerException(goods.getName() + "库存数量不足");
+        }
+        UserOrderGoodsVO userOrderGoodsVO = new UserOrderGoodsVO();
+        userOrderGoodsVO.setId(goods.getId());
+        userOrderGoodsVO.setName(goods.getName());
+        userOrderGoodsVO.setPicture(goods.getCover());
+        userOrderGoodsVO.setCount(query.getCount());
+        userOrderGoodsVO.setAttrsText(query.getAttrsText());
+        userOrderGoodsVO.setPrice(goods.getOldPrice());
+        userOrderGoodsVO.setPayPrice(goods.getPrice());
+
+        BigDecimal freight = new BigDecimal(goods.getFreight().toString());
+        BigDecimal price = new BigDecimal(goods.getPrice().toString());
+        BigDecimal count = new BigDecimal(query.getCount().toString());
+        userOrderGoodsVO.setTotalPrice(price.multiply(count).add(freight).doubleValue());
+        userOrderGoodsVO.setTotalPayPrice(userOrderGoodsVO.getTotalPrice());
+        goodList.add(userOrderGoodsVO);
+
+//       3、费用综述信息
+        OrderInfoVO orderInfoVO = new OrderInfoVO();
+        orderInfoVO.setGoodsCount(query.getCount());
+        orderInfoVO.setTotalPayPrice(userOrderGoodsVO.getTotalPayPrice());
+        orderInfoVO.setTotalPrice(userOrderGoodsVO.getTotalPrice());
+        orderInfoVO.setPostFee(goods.getFreight());
+        orderInfoVO.setDiscountPrice(goods.getDiscount());
+
+        submitOrderVO.setUserAddresses(addressList);
+        submitOrderVO.setGoods(goodList);
+        submitOrderVO.setSummary(orderInfoVO);
+        return submitOrderVO;
+    }
+
     public List<UserAddressVO> getAddressListByUserId(Integer userId, Integer addressId) {
 //      1、根据用户 id 查询该用户的收货地址列表
         List<UserShippingAddress> list = userShippingAddressMapper.selectList(new LambdaQueryWrapper<UserShippingAddress>().eq(UserShippingAddress::getUserId, userId));
