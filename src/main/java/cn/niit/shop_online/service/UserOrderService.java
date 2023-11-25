@@ -2,6 +2,7 @@ package cn.niit.shop_online.service;
 
 import cn.niit.shop_online.common.result.PageResult;
 import cn.niit.shop_online.entity.UserOrder;
+import cn.niit.shop_online.query.CancelGoodsQuery;
 import cn.niit.shop_online.query.OrderPreQuery;
 import cn.niit.shop_online.query.OrderQuery;
 import cn.niit.shop_online.vo.OrderDetailVO;
@@ -54,4 +55,12 @@ Integer addGoodsOrder(UserOrderVO orderVO);
      * @return
      */
     PageResult<OrderDetailVO> getOrderList(OrderQuery query);
+    /**
+     * 取消订单
+     *
+     * @param query
+     * @return
+     */
+    OrderDetailVO cancelOrder(CancelGoodsQuery query);
 }
+
