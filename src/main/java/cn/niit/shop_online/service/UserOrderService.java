@@ -6,6 +6,7 @@ import cn.niit.shop_online.query.CancelGoodsQuery;
 import cn.niit.shop_online.query.OrderPreQuery;
 import cn.niit.shop_online.query.OrderQuery;
 import cn.niit.shop_online.vo.OrderDetailVO;
+import cn.niit.shop_online.vo.OrderLogisticVO;
 import cn.niit.shop_online.vo.SubmitOrderVO;
 import cn.niit.shop_online.vo.UserOrderVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -90,5 +91,12 @@ Integer addGoodsOrder(UserOrderVO orderVO);
      * @return
      */
     OrderDetailVO receiptOrder(Integer id);
+    /**
+     * 物流订单信息
+     *
+     * @param id
+     * @return
+     */
+    OrderLogisticVO getOrderLogistics(Integer id);
 }
 
