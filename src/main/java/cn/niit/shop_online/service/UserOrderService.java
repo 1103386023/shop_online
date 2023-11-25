@@ -1,6 +1,7 @@
 package cn.niit.shop_online.service;
 
 import cn.niit.shop_online.entity.UserOrder;
+import cn.niit.shop_online.vo.OrderDetailVO;
 import cn.niit.shop_online.vo.UserOrderVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -14,4 +15,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface UserOrderService extends IService<UserOrder> {
 Integer addGoodsOrder(UserOrderVO orderVO);
+    /**
+     * 订单详情
+     *
+     * @param id
+     * @return
+     */
+    OrderDetailVO getOrderDetail(Integer id);
 }
